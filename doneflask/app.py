@@ -1,7 +1,5 @@
-#This is the main file for Hostaware IDS 
+#This is the main file for Hostaware IDS
 from flask import Flask, render_template, redirect, url_for, request
-import eventlet
-from flask_socketio import SocketIO
 from colorama import Fore, Back, Style
 import werkzeug
 from itertools import cycle
@@ -16,7 +14,6 @@ import socket
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
-socketio = SocketIO(app)
 print(Fore.RED + """
  ██░ ██  ▒█████    ██████ ▄▄▄█████▓    ▄▄▄       █     █░ ▄▄▄       ██▀███  ▓█████
 ▓██░ ██▒▒██▒  ██▒▒██    ▒ ▓  ██▒ ▓▒   ▒████▄    ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▓█   ▀
@@ -86,7 +83,7 @@ print(Fore.BLUE + "URL - http://127.0.0.1:8181/")
 
 app = Flask(__name__,template_folder='templates')
 
-@app.route('/', methods=['GET', 'POST'])    
+@app.route('/', methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
