@@ -1,120 +1,161 @@
-#This is the main file for Hostaware IDS
-from flask import Flask, render_template, redirect, url_for, request
-from colorama import Fore, Back, Style
-import werkzeug
-from itertools import cycle
-from shutil import get_terminal_size
-from threading import Thread
-from time import sleep
-from flask import Flask
-from scapy.all import *
-from colorama import Fore, Back, Style
-import logging
-import socket
+<!DOCTYPE html>
+<html lang="en">
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret_key'
-print(Fore.RED + """
- ██░ ██  ▒█████    ██████ ▄▄▄█████▓    ▄▄▄       █     █░ ▄▄▄       ██▀███  ▓█████
-▓██░ ██▒▒██▒  ██▒▒██    ▒ ▓  ██▒ ▓▒   ▒████▄    ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▓█   ▀
-▒██▀▀██░▒██░  ██▒░ ▓██▄   ▒ ▓██░ ▒░   ▒██  ▀█▄  ▒█░ █ ░█ ▒██  ▀█▄  ▓██ ░▄█ ▒▒███
-░▓█ ░██ ▒██   ██░  ▒   ██▒░ ▓██▓ ░    ░██▄▄▄▄██ ░█░ █ ░█ ░██▄▄▄▄██ ▒██▀▀█▄  ▒▓█  ▄
-░▓█▒░██▓░ ████▓▒░▒██████▒▒  ▒██▒ ░     ▓█   ▓██▒░░██▒██▓  ▓█   ▓██▒░██▓ ▒██▒░▒████▒
- ▒ ░░▒░▒░ ▒░▒░▒░ ▒ ▒▓▒ ▒ ░  ▒ ░░       ▒▒   ▓▒█░░ ▓░▒ ▒   ▒▒   ▓▒█░░ ▒▓ ░▒▓░░░ ▒░ ░
-                                                                                    """)
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard::HostAware</title>
+    <!-- ======= Styles ====== -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="apple-touch-icon" sizes="57x57" href="../static/css/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="../static/css/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="../static/css/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../static/css/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="../static/css/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="../static/css/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="../static/css/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="../static/css/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/css/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../static/css/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/css/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="../static/css/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/css/favicon/favicon-16x16.png">
+    <link rel="manifest" href="../static/cssfavicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="../static/css/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+</head>
 
-class Loader:
-    def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
-        """
-        A loader-like context manager
+<body>
+    <!-- =============== Navigation ================ -->
+    <div class="container">
+        <div class="navigation">
+            <ul>
+                <li>
+                    <a href="#">
+                        <span class="icon">
+                            <ion-icon name='logo-slack'></ion-icon>
+                        </span>
+                        <span class="title">HOST AWARE</span>
+                    </a>
+                </li>
 
-        Args:
-            desc (str, optional): The loader's description. Defaults to "Loading...".
-            end (str, optional): Final print. Defaults to "Done!".
-            timeout (float, optional): Sleep time between prints. Defaults to 0.1.
-        """
-        self.desc = desc
-        self.end = end
-        self.timeout = timeout
+                <li>
+                    <a href="#">
+                        <span class="icon">
+                            <ion-icon name="home-outline"></ion-icon>
+                        </span>
+                        <span class="title">Dashboard</span>
+                    </a>
+                </li>
 
-        self._thread = Thread(target=self._animate, daemon=True)
-        self.steps = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
-        self.done = False
+                <li>
+                    <a href={{ url_for('settings') }}>
+                        <span class="icon">
+                            <ion-icon name="settings-outline"></ion-icon>
+                        </span>
+                        <span class="title">Settings</span>
+                    </a>
+                </li>
 
-    def start(self):
-        self._thread.start()
-        return self
+                <li>
+                    <a href={{ url_for('login') }}>
+                        <span class="icon">
+                            <ion-icon name="log-out-outline"></ion-icon>
+                        </span>
+                        <span class="title">Sign Out</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
-    def _animate(self):
-        for c in cycle(self.steps):
-            if self.done:
-                break
-            print(f"\r{self.desc} {c}", flush=True, end="")
-            sleep(self.timeout)
+        <!-- ========================= Main ==================== -->
+        <div class="main">
+            <div class="topbar">
+                <div class="toggle">
+                    <ion-icon name="menu-outline"></ion-icon>
+                </div>
 
-    def __enter__(self):
-        self.start()
+                <div class="user">
+                    <img src="assets/imgs/hostaware-logo.png" alt="DisplayPicture">
+                </div>
+            </div>
 
-    def stop(self):
-        self.done = True
-        cols = get_terminal_size((80, 20)).columns
-        print("\r" + " " * cols, end="", flush=True)
-        print(f"\r{self.end}", flush=True)
+            <!-- ======================= pie chart ================== -->
 
-    def __exit__(self, exc_type, exc_value, tb):
-        # handle exceptions with those variables ^
-        self.stop()
+            <div class="cardBox">
+                <div class="card">
+                    <h2>Open Ports:</h2>
+                    <ul>
+                        {% for port in open_ports %}
+                        <li>{{ port }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card">
+                        <ul>
+                            <table>
+                                   <tr>
+                                      <th>Source IP</th>
+                                      <th>Destination Port</th>
+                                      <th>Source Port</th><br>
+                                   </tr>
+                                   <tr>
+                                       <td>139.59.4.123</td>
+                                       <td>34</td>
+                                       <td>51116</td>
+                                  </tr>
+                            </table>
+                        </ul>
+                </div>
+                <div class="card">
+                    <h2>Alert Ports:</h2>
+                    <br>
+                    <ul>
+                        li>22</li><br>
+                    </ul>
+                </div>
+                <div class="alert">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                    WARNING : Some ports are been affected.
+                </div> 
+            </div>
+
+            <!-- ================ Order Details List ================= -->
+            <div class="details">
+                <div class="Requests">
+                    <div class="cardHeader">
+                        <h2>Requests</h2>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>Source IP</td>
+                                <td>Source Port</td>
+                                <td>Status</td>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>139.59.4.12.32</td>
+                                <td>51116</td>
+                                <td><span class="status delivered">Safe</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
 
-if __name__ == "__main__":
-    with Loader("Starting Host Aware IDS..."):
-        for i in range(10):
-            sleep(0.25)
+                <!-- =========== Scripts =========  -->
+                <script src="../static/css/js/main.js"></script>
 
+                <!-- ====== ionicons ======= -->
+                <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+                <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
 
-    loader = Loader("Initializing Network monitoring [+]", "Done!", 0.05).start()
-    for i in range(10):
-        sleep(0.25)
-    loader.stop()
-print("Please visit this link or copy paste the url for Dashboard view")
-print(Fore.BLUE + "URL - http://127.0.0.1:8181/")
-
-
-
-app = Flask(__name__,template_folder='templates')
-
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    error = None
-    if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-            error = 'Invalid Credentials. Please try again.'
-        else:
-            return redirect('dashboard')
-    return render_template('login.html', error=error)
-
-@app.route('/dashboard')
-def dashboard():
-    open_ports = []
-    target_ip = '127.0.0.1'  # Replace with your local machine's IP address
-
-    # Define the range of ports you want to scan
-    start_port = 1
-    end_port = 25
-
-    for port in range(start_port, end_port + 1):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)  # Set a timeout for the connection attempt
-        result = sock.connect_ex((target_ip, port))
-        if result == 0:
-            open_ports.append(port)
-        sock.close()
-
-    return render_template('dashboard.html',  open_ports=open_ports)
-
-@app.route('/settings')
-def settings():
-    return render_template('settings.html')
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8181, debug=True)
-    socketio.run(app)
+</html>
