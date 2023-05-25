@@ -29,12 +29,12 @@
     <h1>Login</h1>
     <form method="post">
       <div class="txt_field">
-	      <input type="text" placeholder="Username" name="username" value="{{request.form.username }}">
+              <input type="text" placeholder="Username" name="username" value="{{request.form.username }}">
         <span></span>
         <label>Username</label>
       </div>
       <div class="txt_field">
-	      <input type="password" placeholder="Password" name="password" value="{{request.form.password }}">
+              <input type="password" placeholder="Password" name="password" value="{{request.form.password }}">
         <span></span>
         <label>Password</label>
       </div>
@@ -44,7 +44,7 @@
       </div>
     </form>
     {% if error %}
-    	<p class="error"><strong>Error:</strong> {{error}}
+        <p class="error"><strong>Error:</strong> {{error}}
     {% endif %}
   </div>
 
