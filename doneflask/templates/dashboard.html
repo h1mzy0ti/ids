@@ -95,29 +95,19 @@
                     </ul>
                 </div>
                 <div class="card">
-                        <ul>
-                            <table>
-                                   <tr>
-                                      <th>Source IP</th>
-                                      <th>Destination Port</th>
-                                      <th>Source Port</th><br>
-                                   </tr>
-                                   <tr>
-                                       <td>139.59.4.123</td>
-                                       <td>34</td>
-                                       <td>51116</td>
-                                  </tr>
-                            </table>
-                        </ul>
+                    <h2>Source Ip:</h2>
+                    <ul>
+                    </ul>
                 </div>
                 <div class="card">
                     <h2>Alert Ports:</h2>
-                    <br>
                     <ul>
-                        li>22</li><br>
+                        {% %}
+                        <li></li>
+                        {% endfor %}
                     </ul>
                 </div>
-            </div>i
+            </div>
 
             <!-- ================ Order Details List ================= -->
             <div class="details">
@@ -137,8 +127,10 @@
 
                         <tbody>
                             <tr>
-                                <td>139.59.4.12.32</td>
-                                <td>51116</td>
+                                {% for item in requests %}
+                                <td>{{ item }}</td>
+                                {% endfor %}
+
                                 <td><span class="status delivered">Safe</span></td>
                             </tr>
                         </tbody>
